@@ -1,7 +1,8 @@
 (function (d, w) {
 'use strict';
 
-var pointsRegEx = /^(\(([\d\.]+)\)\s*)?(.+?)(\s*\[([\d\.]+)\])?$/im; // new RegExp("^(\(([\d\.]+)\))?(.+)(\[([\d\.]+)\])?$", "i"); // Was: /^\(([\d\.]+)\)(.+)/i; 
+//var pointsRegEx = /^(\(([\d\.]+)\)\s*)?(.+?)(\s*\[([\d\.]+)\])?$/im; // new RegExp("^(\(([\d\.]+)\))?(.+)(\[([\d\.]+)\])?$", "i"); // Was: /^\(([\d\.]+)\)(.+)/i; 
+var pointsRegEx = /^(.+?)(\s*\[([\d\.]+)\])?(\(([\d\.]+)\)\s*)?$/im;
 
 var debounce = function (func, wait, immediate) {
   var timeout;
@@ -35,23 +36,22 @@ var resetStoryPointsForColumn = (column) => {
   }
 };
 
-var titleWithPoints = (title, points, spent) => (
-  `<span style="font-weight:bold">${title}</span><br \>
-  <span class="github-project-story-points counter"
-  style="font-size:xx-small">${spent} spent of ${points}</span>`
+var titleWithPoints = (title, points) => (
+  `<span class="github-project-story-points Counter">${points} </span>&nbsp;<span style="font-weight:bold">${title}</span>`
 );
 
-var titleWithTotalPoints = (title, points, spent) => (
-    `${title}<span class="github-project-story-points" style="font-size:xx-small"> item${pluralize(title)} (${spent} spent of ${points})</span>`
+var titleWithTotalPoints = (title, points) => (
+    `${title}<span class="github-project-story-points" style="font-size:xx-small"> item${pluralize(title)} (${points} ${points == 1 ? "point" : "points"})</span>`
 );
 
 var addStoryPointsForColumn = (column) => {
   const columnCards = Array
     .from(column.getElementsByClassName('issue-card'))
     .filter(card => !card.classList.contains('sortable-ghost'))
+    .filter(card => !card.classList.contains('d-none'))
     .map(card => {
       const titleElementContainer = Array
-        .from(card.getElementsByTagName('h5'))
+        .from(card.getElementsByClassName('h5'))
         .concat(Array.from(card.getElementsByTagName('p')))[0];
       const titleElementLink = (
         titleElementContainer.getElementsByTagName &&
@@ -68,16 +68,14 @@ var addStoryPointsForColumn = (column) => {
         pointsRegEx.exec(titleElement.innerText) ||
         [null, '0', titleElement.innerText]
       );
-      const storyPoints = parseFloat(story[2]) || 0;
-      const storyTitle = story[3];
-      const spentPoints = parseFloat(story[5]) || 0;
+      const storyPoints = parseFloat(story[5]) || 0;
+      const storyTitle = story[1].trim();
       return {
         element: card,
         titleElement,
         title,
         titleNoPoints: storyTitle,
         storyPoints,
-        spentPoints,
       };
     });
   const columnCountElement = column.getElementsByClassName('js-column-card-count')[0];
@@ -86,10 +84,9 @@ var addStoryPointsForColumn = (column) => {
   let columnSpentPoints = 0;
   for (let card of columnCards) {
     columnStoryPoints += card.storyPoints;
-    columnSpentPoints += card.spentPoints;
-    if (card.storyPoints || card.spentPoints) {
+    if (card.storyPoints) {
       card.titleElement.dataset.gpspOriginalContent = card.title;
-      card.titleElement.innerHTML = titleWithPoints(card.titleNoPoints, card.storyPoints, card.spentPoints);
+      card.titleElement.innerHTML = titleWithPoints(card.titleNoPoints, card.storyPoints);
     }
   }
   // Apply DOM changes:
@@ -134,11 +131,10 @@ var start = debounce(() => {
       pointsRegEx.exec(titleElement.innerText) ||
       [null, '0', titleElement.innerText]
     );
-    const storyPoints = parseFloat(story[2]) || 0;
+    const storyPoints = parseFloat(story[5]) || 0;
     const storyTitle = story[3];
-    const spentPoints = parseFloat(story[5]) || 0;
-    if (storyPoints || spentPoints) {
-      titleElement.innerHTML = titleWithPoints(storyTitle, storyPoints, spentPoints);
+    if (storyPoints) {
+      titleElement.innerHTML = titleWithPoints(storyTitle, storyPoints);
     }
   }
 }, 50);
@@ -161,3 +157,4 @@ w.addEventListener('statechange', () => setTimeout(() => {
 start();
 
 })(document, window);
+  
