@@ -156,9 +156,9 @@ var openCard = event => {
 
   document.body.innerHTML +=
     `<div id="githubframewrapper"
-        style="width: 100%; height: 100%; top: 0; margin: 0 auto; position: absolute; background: rgba(0,0,0,.4); z-index: 100; padding: 1% 3%;">
-      <div id="githubframe" style="background: #fff; overflow: scroll; height: 100%; max-width: 1040px; margin: 0 auto; border-radius: 5px; padding: 15px 5px;">
-        <h1 style="text-align: center; margin-top: 20%">Loading...</h1>
+        style="width: 100%; height: 100%; top: 0; margin: 0 auto; position: absolute; background: rgba(0,0,0,.4); z-index: 100; padding: 1% 3%; overflow:scroll;">
+      <div id="githubframe" style="background: #fff; overflow: scroll; max-width: 1040px; margin: 0 auto; border-radius: 5px; padding: 15px 5px;">
+        <h1 style="text-align: center; margin: 2em 0;">Loading...</h1>
       </div>
     </div>`;
 
