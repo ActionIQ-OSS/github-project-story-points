@@ -88,6 +88,8 @@ var addStoryPointsForColumn = (column) => {
       card.titleElement.dataset.gpspOriginalContent = card.title;
       card.titleElement.innerHTML = titleWithPoints(card.titleNoPoints, card.storyPoints);
     }
+    card.titleElement.removeEventListener('contextmenu', openCard);
+    card.titleElement.addEventListener('contextmenu', openCard, true);
   }
   // Apply DOM changes:
   if (columnStoryPoints || columnSpentPoints) {
@@ -138,6 +140,47 @@ var start = debounce(() => {
     }
   }
 }, 50);
+
+var httpGetAsync = (theUrl, callback) => {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            callback(xmlHttp.responseText);
+    }
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+    xmlHttp.send(null);
+}
+
+var openCard = event => {
+  const url = event.srcElement.parentNode.href;
+
+  document.body.innerHTML +=
+    `<div id="githubframewrapper"
+        style="width: 100%; height: 100%; top: 0; left: 0; position: absolute; background: rgba(0,0,0,.4); z-index: 100; padding: 1% 3%;">
+      <div id="githubframe" style="background: #fff; overflow: scroll; height: 100%; border-radius: 5px; padding: 5px;">
+        <h1 style="text-align: center;">Loading...</h1>
+      </div>
+    </div>`;
+
+  const wrapper = document.getElementById("githubframewrapper");
+
+  wrapper.addEventListener("click", e => {
+    if(e.target.id == "githubframewrapper") {
+      document.body.removeChild(wrapper);
+    }
+  });
+
+
+  httpGetAsync(url, res => {
+    var frame = document.getElementById("githubframe");
+    if (frame) {
+      document.getElementById("githubframe").innerHTML = res;
+    }
+  });
+
+  event.preventDefault();
+  return false;
+};
 
 // Hacks to restart the plugin on pushState change
 w.addEventListener('statechange', () => setTimeout(() => {

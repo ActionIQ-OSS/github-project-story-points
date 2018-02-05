@@ -10,6 +10,8 @@ You notes/PR/issues should have a title like `My issue title (2)` and the "(2)"
 will be converted in a nice tag. Also all projects lists will have the total count
 of story points in them next to the count of cards.
 
+Right-clicking on a card link will open it in a frame.
+
 ## To Install
 
 1. Download all the files in the directory.
