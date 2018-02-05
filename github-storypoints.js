@@ -156,9 +156,9 @@ var openCard = event => {
 
   document.body.innerHTML +=
     `<div id="githubframewrapper"
-        style="width: 100%; height: 100%; top: 0; left: 0; position: absolute; background: rgba(0,0,0,.4); z-index: 100; padding: 1% 3%;">
-      <div id="githubframe" style="background: #fff; overflow: scroll; height: 100%; border-radius: 5px; padding: 5px;">
-        <h1 style="text-align: center;">Loading...</h1>
+        style="width: 100%; height: 100%; top: 0; margin: 0 auto; position: absolute; background: rgba(0,0,0,.4); z-index: 100; padding: 1% 3%;">
+      <div id="githubframe" style="background: #fff; overflow: scroll; height: 100%; max-width: 1040px; margin: 0 auto; border-radius: 5px; padding: 15px 5px;">
+        <h1 style="text-align: center; margin-top: 20%">Loading...</h1>
       </div>
     </div>`;
 
@@ -174,7 +174,14 @@ var openCard = event => {
   httpGetAsync(url, res => {
     var frame = document.getElementById("githubframe");
     if (frame) {
-      document.getElementById("githubframe").innerHTML = res;
+      var githubFrame = document.getElementById("githubframe");
+      githubFrame.innerHTML = res;
+      
+      var header = githubFrame.getElementsByClassName("js-header-wrapper")[0];
+      var navigation = githubFrame.getElementsByClassName("repohead")[0];
+      
+      header.parentNode.removeChild(header);
+      navigation.parentNode.removeChild(navigation);
     }
   });
 
