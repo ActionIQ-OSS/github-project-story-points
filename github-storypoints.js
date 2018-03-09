@@ -68,7 +68,7 @@ var addStoryPointsForColumn = (column) => {
         pointsRegEx.exec(titleElement.innerText) ||
         [null, '0', titleElement.innerText]
       );
-      const storyPoints = parseFloat(story[5]) || 0;
+      const storyPoints = parseFloat(story[5] || 0);
       const storyTitle = story[1].trim();
       return {
         element: card,
@@ -93,6 +93,7 @@ var addStoryPointsForColumn = (column) => {
   }
   // Apply DOM changes:
   if (columnStoryPoints || columnSpentPoints) {
+    columnStoryPoints = Math.round(parseFloat(columnStoryPoints || 0) * 100) / 100
     columnCountElement.innerHTML = titleWithTotalPoints(columnCards.length, columnStoryPoints, columnSpentPoints);
   }
 };
@@ -126,6 +127,7 @@ var start = debounce(() => {
     }
   }
   // Issues
+  addNewIssueButton();
   const issues = Array.from(d.getElementsByClassName('js-issue-row'));
   for (let issue of issues) {
     const titleElement = issue.getElementsByClassName('h4')[0];
@@ -152,7 +154,8 @@ var httpGetAsync = (theUrl, callback) => {
 }
 
 var openCard = event => {
-  const url = event.srcElement.parentNode.href;
+  event.preventDefault();
+  const url = event.srcElement.parentNode.attributes.href.textContent;
 
   document.body.innerHTML +=
     `<div id="githubframewrapper"
@@ -188,6 +191,26 @@ var openCard = event => {
   event.preventDefault();
   return false;
 };
+
+var addNewIssueButton = () => {
+  if (!document.getElementsByClassName("new-issue-with-project").length) {
+    const urlMatch = document.location.href.match(/.com\/(\w+\/\w+)\/projects\/(\d+)/);
+    const newUrl = 'https://github.com/ActionIQ/aiq/issues/new?projects=' + urlMatch[1] + '/' + urlMatch[2];
+    var e = document.createElement('div');
+    e.innerHTML =
+      `<button class="btn-link muted-link project-header-link v-align-middle no-underline" type="button" href='${newUrl}'>
+        <span class='hide-sm new-issue-with-project'>New Issue</span>
+      </div>`;
+    document.getElementsByClassName("project-header-controls")[0].replaceChild(
+      e,
+      document.getElementsByClassName("project-header-controls")[0].childNodes[3]
+    );
+  }
+
+  const newButton = document.getElementsByClassName("new-issue-with-project")[0];
+  newButton.removeEventListener('click', openCard);
+  newButton.addEventListener('click', openCard, true);
+}
 
 // Hacks to restart the plugin on pushState change
 w.addEventListener('statechange', () => setTimeout(() => {
